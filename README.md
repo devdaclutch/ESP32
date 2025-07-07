@@ -1,7 +1,23 @@
 # ESP32-C3 Embedded Systems Projects (CSE 121 - UCSC)
 
 This repository contains labs and projects built using the ESP32-C3 development board for the CSE 121 course at UC Santa Cruz. Projects include I2C sensor integration, Bluetooth HID, Morse code transmission, and HTTP networking. All projects are written in C or C++ using the ESP-IDF framework.
+## Prerequisites
 
+You **must install the ESP-IDF framework** to build and flash any of the labs.
+
+### Install ESP-IDF
+
+```bash
+# Clone the ESP-IDF repo (recursive is critical)
+git clone --recursive https://github.com/espressif/esp-idf.git ~/esp/esp-idf
+
+# Run the installer
+cd ~/esp/esp-idf
+./install.sh esp32c3
+
+# Export environment (do this every new terminal session)
+. ./export.sh
+```
 ## Labs Summary
 
 | Lab      | Description                                                   |
@@ -33,3 +49,12 @@ Each lab folder includes:
 - Source code only — `build/` is excluded
 
 ---
+## Build & Flash (for any lab)
+```bash
+. $HOME/esp/esp-idf/export.sh   # Set up env
+idf.py set-target esp32c3       # Set chip target
+idf.py build                    # Compile
+idf.py flash                    # Flash to board
+idf.py monitor                  # Serial output
+Ctrl+] to exit monitor
+```
