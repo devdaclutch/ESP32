@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+
+import RPi.GPIO as GPIO
+import time
+import sys
+
+# GPIO pin setup
+LED_PIN = 18  # GPIO17 (pin 11 on header)
+UNIT = 0.2  # base time unit in seconds (200ms)
+
+# Morse code dictionary
+MORSE_CODE = {
+    'A': '.-',     'B': '-...',   'C': '-.-.',   'D': '-..',
+    'E': '.',      'F': '..-.',   'G': '--.',    'H': '....',
+    'I': '..',     'J': '.---',   'K': '-.-',    'L': '.-..',
+    'M': '--',     'N': '-.',     'O': '---',    'P': '.--.',
+    'Q': '--.-',   'R': '.-.',    'S': '...',    'T': '-',
+    'U': '..-',    'V': '...-',   'W': '.--',    'X': '-..-',
+    'Y': '-.--',   'Z': '--..',
+    '0': '-----',  '1': '.----',  '2': '..---',  '3': '...--',
+    '4': '....-',  '5': '.....',  '6': '-....',  '7': '--...',
+    '8': '---..',  '9': '----.'
+}
+
+def setup():
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(LED_PIN, GPIO.OUT)
+    GPIO.output(LED_PIN, GPIO.LOW)
+
+def cleanup():
+    GPIO.output(LED_PIN, GPIO.LOW)
+    GPIO.cleanup()
+
+def blink_dot():
+    print("• (dot)")
+    GPIO.output(LED_PIN, GPIO.HIGH)
+    time.sleep(UNIT)
+    GPIO.output(LED_PIN, GPIO.LOW)
+    time.sleep(UNIT)
+
+def blink_dash():
+    print("— (dash)")
+    GPIO.output(LED_PIN, GPIO.HIGH)
+    time.sleep(UNIT * 3)
+    GPIO.output(LED_PIN, GPIO.LOW)
+    time.sleep(UNIT)
+
+def send_char(char):
+    if char == ' ':
+        print("[space between words]")
+        time.sleep(UNIT * 7)
+        return
+    code = MORSE_CODE.get(char.upper())
+    if not code:
+        print(f"[skipped unknown char: {char}]")
+        return
+    print(f"Sending '{char}': {code}")
+    for symbol in code:
+        if symbol == '.':
+            blink_dot()
+        elif symbol == '-':
+            blink_dash()
+    time.sleep(UNIT * 2)  # spacing between letters
+
+def send_message(message, count):
+    for i in range(count):
+        print(f"\n--- Sending message {i+1}/{count} ---")
+        for char in message:
+            send_char(char)
+        time.sleep(UNIT * 7)  # pause between message repeats
+
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print(f"Usage: {sys.argv[0]} <repeat_count> \"<message>\"")
+        sys.exit(1)
+
+    try:
+        repeat_count = int(sys.argv[1])
+        message = sys.argv[2]
+
+        setup()
+        send_message(message, repeat_count)
+    finally:
+        cleanup()
+
+
+
